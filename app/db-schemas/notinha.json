@@ -1,0 +1,18 @@
+{
+"total_value" : "",
+"created_by": "",
+"payed_by": [
+    {
+	    "nome": "",
+	    "amount_payed": ""
+    }
+],
+"participants": [
+    {
+	"nome": "",
+	"amount_to_pay": ""
+    }
+],
+"date": "",
+"active": 1
+}
