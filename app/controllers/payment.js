@@ -7,7 +7,7 @@ var ObjectID = require('mongodb').ObjectID;
  * @param {Dados para resposta} res
  * @author Iago Nuvem 
  */
-module.exports.getAllPaymentsByPayerName = function(application, req, res){
+module.exports.getAllByPayerName = function(application, req, res){
     var connection = new application.config.dbConnection();
     var PaymentDAO = new application.app.models.PaymentDAO(connection);
     var user = req.body.user.toString().toLowerCase();
@@ -21,7 +21,7 @@ module.exports.getAllPaymentsByPayerName = function(application, req, res){
  * @param {Dados para resposta} res
  * @author Iago Nuvem 
  */
-module.exports.getAllPaymentsByReceiverName = function(application, req, res){
+module.exports.getAllByReceiverName = function(application, req, res){
     var connection = new application.config.dbConnection();
     var PaymentDAO = new application.app.models.PaymentDAO(connection);
     var user = req.body.user.toString().toLowerCase();
@@ -34,7 +34,7 @@ module.exports.getAllPaymentsByReceiverName = function(application, req, res){
  * @param {Dados para resposta} res
  * @author Iago Nuvem 
  */
-module.exports.getAllPaymentsByStatement = function(application,req,res){
+module.exports.getAllByStatement = function(application,req,res){
     var connection = new application.config.dbConnection();
     var PaymentDAO = new application.app.models.PaymentDAO(connection);
     var statement_id = ObjectID(req.body._id);
@@ -48,7 +48,7 @@ module.exports.getAllPaymentsByStatement = function(application,req,res){
  * @param {Dados para resposta} res
  * @author Iago Nuvem 
  */
-module.exports.checkPayment = function(application,req,res){
+module.exports.check = function(application,req,res){
     var connection = new application.config.dbConnection();
     var PaymentDAO = new application.app.models.PaymentDAO(connection);
     var payment_id = ObjectID(req.body._id);
