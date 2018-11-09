@@ -6,6 +6,9 @@ var server = app.listen(3000, function(){
     console.log('Servidor Online');
 });
 
+// Função para atualizar sozinho o fechamento da notinha
+// app.app.customs.autoCloseStatement.init(app);
+
 var io = require('socket.io').listen(server);
 
 // Variavéis globais

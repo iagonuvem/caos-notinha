@@ -19,6 +19,10 @@ module.exports = function(application){
         application.app.controllers.notinha.getBalanceByName(application,req,res);
     });
 
+    application.post('/getBalanceMulti', function(req, res){
+        application.app.controllers.notinha.getBalanceMulti(application,req,res);
+    });
+
     application.post('/insertNotinha', function(req, res){
         application.app.controllers.notinha.insertNotinha(application,req,res);
     });

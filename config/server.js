@@ -19,6 +19,7 @@ consign()
     .include('app/routes')
     .then('app/models')
     .then('app/controllers')
+    .then('app/customs')
     .then('config/dbConnection.js')
     .into(app);
 

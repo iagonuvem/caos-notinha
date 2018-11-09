@@ -1,0 +1,13 @@
+{
+    "date_open" : "",
+    "date_close" : "",
+    "statement" : [
+        {
+            "name": "",
+            "income": 0.00,
+            "excome": 0.00,
+            "balance": 0.00,
+            "payed": false
+        }
+    ]
+}

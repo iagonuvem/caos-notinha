@@ -1,19 +1,21 @@
 {
+"img" : "",
+"description": "",
 "total_value" : "",
 "created_by": "",
 "payed_by": [
     {
-	    "nome": "",
+	    "name": "",
 	    "amount_payed": ""
     }
 ],
 "participants": [
     {
-	"nome": "",
+	"name": "",
 	"amount_to_pay": ""
     }
 ],
 "date": "",
-"active": 1,
+"active": true,
 "checked" : false
 }

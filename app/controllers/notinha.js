@@ -69,7 +69,23 @@ module.exports.getBalanceByName = function(application, req, res){
 }
 
 /**
- * Módulo responsável por cadastrar uma notinha no banco
+ * Módulo responsável por calcular o saldo de Varios usuario
+ * @param {Instancia do Express} application 
+ * @param {Dados da requisição} req 
+ * @param {Dados para resposta} res
+ * @author Iago Nuvem 
+ */
+module.exports.getBalanceMulti = function(application, req, res){
+    var connection = new application.config.dbConnection();
+    var NotinhaDAO = new application.app.models.NotinhaDAO(connection);
+    // console.log(req.body);
+    var users = JSON.parse(req.body.users);
+    NotinhaDAO.getBalanceMulti(users, res);
+}
+
+
+/**
+* Módulo responsável por cadastrar uma notinha no banco
 * @param {Instancia do Express} application 
  * @param {Dados da requisição} req 
  * @param {Dados para resposta} res

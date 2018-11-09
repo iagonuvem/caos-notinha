@@ -78,7 +78,6 @@ NotinhasDAO.prototype.getNotinhasPayedByName = function(owner,res){
     });
 };
 
-
 /**
  * Retorna as receitas, despesas e balanço de um usuário por Nome
  * @param {nome do usuario} user
@@ -140,6 +139,97 @@ NotinhasDAO.prototype.getBalanceByName = function(user,res){
     }
 };
 
+/**
+ * Retorna as receitas, despesas e balanço de Todos os usuários
+ * @param {Array com nome dos usuarios} user
+ * @returns {receita, despesa e balanco} 
+ */
+NotinhasDAO.prototype.getBalanceMulti = function(users,res){
+    var conn = this._connection;
+    let statement = [];
+    let users_count = 0;
+    // console.log(users);
+    for(var i in users){
+        users_count++;
+    }
+    // console.log("users_count="+users_count);
+
+    new Promise(function(resolve, reject){
+
+        var mongoConnected = conn.connectToMongo(function(client, db){
+            const collection = db.collection('notinhas');
+            
+            for(var i in users){
+                let user = users[i];
+                collection.find({'payed_by.nome': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
+                    getBalance(conn, result, user, res).then(function(data){
+                        fillData(data);
+                    });
+                });
+            }
+            client.close();
+        });
+
+        function fillData(data){
+            statement.push(data);
+            // console.log(statement.length+ "/" + users_count);
+            if(statement.length == users_count){
+                return resolve(statement);
+            }
+        }
+    })
+    .then(function(data){
+        res.send(data);
+        return data
+    })
+    
+
+    function getBalance(conn, income_data, user,res){
+
+        return new Promise(function(resolve, reject) {
+            var mongoConnected = conn.connectToMongo(function(client, db){
+                const collection = db.collection('notinhas');
+                
+                collection.find({'participants.nome': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
+                    // console.log('resultado da segunda: '+result);
+                    var receita = 0, despesa = 0;
+                    // For para calcular as receitas
+                    for(var i in income_data){
+                       for(var j in income_data[i].payed_by){
+                           if(income_data[i].payed_by[j].nome == user.toLowerCase()){
+                               receita += income_data[i].payed_by[j].amount_payed;
+                           }
+                       }
+                    }
+                    // console.log("receita: "+receita);
+    
+                    // For para calcular as despesas
+                    for(var i in result){
+                        for(var j in result[i].participants){
+                            if(result[i].participants[j].nome == user.toLowerCase()){
+                                despesa += result[i].participants[j].amount_to_pay;
+                            }
+                        }
+                    }
+                    // console.log("despesa: "+despesa)
+    
+                    var b = receita-despesa;
+                    var data = {
+                        'name': user,
+                        'income': receita,
+                        'expanse': despesa,
+                        'balance': b
+                    }
+                    return resolve(data);
+                });
+                client.close();
+            });
+            
+        }).then(function(result){
+            return result;
+        })
+    }    
+};
 
 /**
  * Insere uma notinha no banco

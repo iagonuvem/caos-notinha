@@ -1,0 +1,10 @@
+{
+    "statement_id" : "",
+    "payer_id" : "",
+    "payer_name" : "",
+    "receiver_id" : "",
+    "receiver_name" : "",
+    "amount": 0.00,
+    "date" : "",
+    "checked" : false
+}
