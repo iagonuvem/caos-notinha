@@ -43,7 +43,7 @@ StatementDAO.prototype.getCurrentStatement = function(res){
  * @param {date_close} 'data de fechamento'
  * @author Iago Nuvem
  */
-StatementDAO.prototype.addStatement = function(req){
+StatementDAO.prototype.insertStatement = function(req){
     var conn = this._connection;
     var users = [];
 
@@ -75,7 +75,7 @@ StatementDAO.prototype.addStatement = function(req){
         // console.log(req.protocol+'://'+req.get('host')+'/getBalanceMulti');
         request.post({
             headers: {'content-type' : 'application/x-www-form-urlencoded'},
-            url: req.protocol+'://'+req.get('host')+'/getBalanceMulti',
+            url: req.protocol+'://'+req.get('host')+'/notinhas/getBalanceMulti',
             form: { users : JSON.stringify(data)},
             // json: true
         }, function(error,response,body){
