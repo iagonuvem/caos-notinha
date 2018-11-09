@@ -26,5 +26,4 @@ module.exports.addStatement = function(application, req, res){
     var connection = new application.config.dbConnection();
     var StatementDAO = new application.app.models.StatementDAO(connection);
     StatementDAO.addStatement(req);
-    res.send({'msg' : 'Notinha Aberta com sucesso!'});
 }

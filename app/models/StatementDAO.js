@@ -99,11 +99,17 @@ StatementDAO.prototype.insertStatement = function(req){
                     const collection = db.collection('notinhas');
                     collection.updateMany({date: { $lte: data.date_open}},{ $set: { active: 0 }}, function(err, res){
                         if(err){
+                            res.send({'success': false, 'msg': 'Falha ao fechar notinha!'});
                             throw err;
                         }
+
+                        res.send({'success': true, 'msg': 'Notinha fechada com sucesso!'});
                     });
                     client.close();
                 });
+            }
+            else{
+                res.send({'success': false, 'msg': 'Falha ao fechar notinha!'});
             }
         });
     });
