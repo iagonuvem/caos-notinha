@@ -78,14 +78,19 @@ UserDAO.prototype.insert = function(data, res){
 UserDAO.prototype.update = function(_id,data, res){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('users');
-        console.log(data);
+        // console.log(data);
         collection.updateOne({_id : _id},{$set: data}, function(err,obj){
             if(err){
                 res.send({'success': false, 'msg' : 'Falha ao alterar usuário!'});
                 throw err;
             }
 
-            res.send({'success': true, 'msg' : 'Usuário alterado com sucesso!'});
+            if(obj.result.nModified > 0){
+                res.send({'success': true, 'msg' : 'Usuário alterado com sucesso!'});
+            }
+            else{
+                res.send({'success': false, 'msg' : 'Nenhum dado foi modificado!'});
+            }
         });
 
         client.close();
