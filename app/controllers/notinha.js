@@ -119,6 +119,4 @@ module.exports.insertNotinha = function(application,req,res){
     var connection = new application.config.dbConnection();
     var NotinhaDAO = new application.app.models.NotinhaDAO(connection);
     NotinhaDAO.insertNotinha(data);
-
-    res.send({'msg' : 'Notinha Cadastrada com sucesso!'})
 }

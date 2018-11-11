@@ -1,3 +1,5 @@
+var ObjectID = require('mongodb').ObjectID;
+
 /**
  * Módulo responsável por buscar todos os pagamentos FEITOS por um usuario, ordenados por data
  * @param {Instancia do Express} application 
@@ -61,7 +63,6 @@ module.exports.check = function(application,req,res){
  * @author Iago Nuvem 
  */
 module.exports.insert = function(application,req,res){
-    var ObjectID = require('mongodb').ObjectID;
     var connection = new application.config.dbConnection();
     var PaymentDAO = new application.app.models.PaymentDAO(connection);
     

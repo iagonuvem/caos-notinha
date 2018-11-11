@@ -239,7 +239,14 @@ NotinhasDAO.prototype.insertNotinha = function(data){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('notinhas');
 
-        collection.insert(data);
+        collection.insertOne(data, function(err,obj){
+            if(err){
+                res.send({'success': false, 'msg' : 'Falha ao inserir notinha!'});
+                throw err;
+            }
+
+            res.send({'success': true, 'msg' : 'Notinha Cadastrada com sucesso!'});
+        });
 
         client.close();
     });
