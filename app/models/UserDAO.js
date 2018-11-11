@@ -57,9 +57,35 @@ UserDAO.prototype.insert = function(data, res){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('users');
 
-        collection.find().toArray(function(err, result){
-            // console.log(result);
-            res.send(result);  
+        collection.insertOne(data, function(err,obj){
+            if(err){
+                res.send({'success': false, 'msg' : 'Falha ao inserir usuário!'});
+                throw err;
+            }
+
+            res.send({'success': true, 'msg' : 'Usuário Cadastrado com sucesso!'});
+        });
+
+        client.close();
+    });
+}
+
+/**
+ * Altera um usuário
+ * @param {dados do usuario} data
+ * @author Iago Nuvem
+ */
+UserDAO.prototype.update = function(_id,data, res){
+    var mongoConnected = this._connection.connectToMongo(function(client, db){
+        const collection = db.collection('users');
+        console.log(data);
+        collection.updateOne({_id : _id},{$set: data}, function(err,obj){
+            if(err){
+                res.send({'success': false, 'msg' : 'Falha ao alterar usuário!'});
+                throw err;
+            }
+
+            res.send({'success': true, 'msg' : 'Usuário alterado com sucesso!'});
         });
 
         client.close();

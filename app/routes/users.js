@@ -9,6 +9,10 @@ module.exports = function(application){
         application.app.controllers.user.delete(application,req,res)
     })
 
+    application.post(mod+'insert', function(req, res){
+        application.app.controllers.user.insert(application,req,res)
+    })
+
     application.post(mod+'update', function(req, res){
         application.app.controllers.user.update(application,req,res)
     })
