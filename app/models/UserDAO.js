@@ -97,6 +97,35 @@ UserDAO.prototype.update = function(_id,data, res){
     });
 }
 
+/**
+ * Altera o tipo de usuário no sistema
+ * @param {Id do usuario} _id
+ * @param {Tipo do usuario (0 ou 1)} type
+ * @param {Response do Express} res
+ * @author Iago Nuvem
+ */
+UserDAO.prototype.setAdmin = function(_id,type,res){
+    var mongoConnected = this._connection.connectToMongo(function(client, db){
+        const collection = db.collection('users');
+        // console.log(data);
+        collection.updateOne({_id : _id},{$set: {admin: type}}, function(err,obj){
+            if(err){
+                res.send({'success': false, 'msg' : 'Falha ao alterar usuário!'});
+                throw err;
+            }
+
+            if(obj.result.nModified > 0){
+                res.send({'success': true, 'msg' : 'Usuário alterado com sucesso!'});
+            }
+            else{
+                res.send({'success': false, 'msg' : 'Nenhum dado foi modificado!'});
+            }
+        });
+
+        client.close();
+    });
+}
+
 module.exports = function(){
     return UserDAO;
 }

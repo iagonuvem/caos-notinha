@@ -102,3 +102,17 @@ module.exports.delete = function(application, req, res){
     var _id = ObjectID(req.body._id);
     UserDAO.delete(_id,res);
 }
+
+/**
+ * Módulo responsável por tornar um usuário admin
+ * @param {Instancia do Express} application 
+ * @param {Dados da requisição} req 
+ * @param {Dados para resposta} res
+ * @author Iago Nuvem 
+ */
+module.exports.setAdmin = function(application, req, res){
+    var connection = new application.config.dbConnection();
+    var UserDAO = new application.app.models.UserDAO(connection);
+    var _id = ObjectID(req.body._id);
+    UserDAO.setAdmin(_id,req.body.type,res);
+}

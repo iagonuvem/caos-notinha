@@ -16,4 +16,8 @@ module.exports = function(application){
     application.post(mod+'update', function(req, res){
         application.app.controllers.user.update(application,req,res)
     })
+
+    application.post(mod+'setAdmin', function(req, res){
+        application.app.controllers.user.setAdmin(application,req,res)
+    })
 }
