@@ -46,8 +46,8 @@ module.exports.getBalanceByUser = function(application,req,res){
  * Abre nova notinha
  * @author Iago Nuvem
  */
-module.exports.addStatement = function(application, req, res){
+module.exports.insertStatement = function(application, req, res){
     var connection = new application.config.dbConnection();
     var StatementDAO = new application.app.models.StatementDAO(connection);
-    StatementDAO.addStatement(req);
+    StatementDAO.insertStatement(res,req);
 }

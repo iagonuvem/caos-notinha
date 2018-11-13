@@ -83,7 +83,7 @@ PaymentDAO.prototype.insert = function(data){
 }
 
 /**
- * Checa um pagamento propriedade 'payed' da notinha
+ * Checa um pagamento e altera propriedade 'payed' da notinha caso pagamento completo(balance = 0)
  * @param {ObjectId do documento do pagamento} payment_id
  * @author Iago Nuvem
  */

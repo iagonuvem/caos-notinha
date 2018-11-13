@@ -186,10 +186,11 @@ StatementDAO.prototype.getBalanceByUser = function(user,res){
         });
     })
     .then(function(data){
+        // console.log(data);
         var mongoConnected = conn.connectToMongo(function(client, db){
             const collection = db.collection('payments');
     
-            collection.find({ $or: [ {payer_name: user}, {receiver_name: user} ]}).toArray(function(err, result){
+            collection.find({$and : [{$or: [ {payer_name: user}, {receiver_name: user} ]}, {checked : false}]}).toArray(function(err, result){
                 if(err){
                     res.send({'success' : 0, 'msg': 'Falha ao buscar pagamentos da fatura!'});
                     reject(err);
@@ -226,7 +227,7 @@ StatementDAO.prototype.getBalanceByUser = function(user,res){
  * @param {date_close} 'data de fechamento'
  * @author Iago Nuvem
  */
-StatementDAO.prototype.insertStatement = function(req){
+StatementDAO.prototype.insertStatement = function(res,req){
     var conn = this._connection;
     var users = [];
 
@@ -280,7 +281,7 @@ StatementDAO.prototype.insertStatement = function(req){
                 // Atualiza as notinhas com a data anterior à data de fechamento da fatura
                 var mongoConnected = conn.connectToMongo(function(client, db){
                     const collection = db.collection('notinhas');
-                    collection.updateMany({date: { $lte: data.date_open}},{ $set: { active: 0 }}, function(err, res){
+                    collection.updateMany({date: { $lte: data.date_open}},{ $set: { active: 0 }}, function(err, result){
                         if(err){
                             res.send({'success': false, 'msg': 'Falha ao fechar notinha!'});
                             throw err;
