@@ -9,6 +9,14 @@ module.exports = function(application){
         application.app.controllers.statement.getCurrentStatement(application,req,res);
     });
 
+    application.post(mod+'getBalanceById', function(req,res){
+        application.app.controllers.statement.getBalanceById(application,req,res);
+    })
+
+    application.post(mod+'getBalanceByUser', function(req,res){
+        application.app.controllers.statement.getBalanceByUser(application,req,res);
+    })
+
     application.post(mod+'insert', function(req, res){
         application.app.controllers.statement.insertStatement(application,req,res);
     });
