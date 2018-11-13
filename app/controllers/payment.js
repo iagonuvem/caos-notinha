@@ -51,7 +51,7 @@ module.exports.getAllByStatement = function(application,req,res){
 module.exports.check = function(application,req,res){
     var connection = new application.config.dbConnection();
     var PaymentDAO = new application.app.models.PaymentDAO(connection);
-    var payment_id = ObjectID(req.body._id);
+    var payment_id = req.body._id;
     PaymentDAO.checkPayment(payment_id, res);
 }
 
