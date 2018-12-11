@@ -1,6 +1,41 @@
 var ObjectID = require('mongodb').ObjectID;
 
 /**
+ * Método de login
+ * @param {Instancia do Express} application 
+ * @param {Dados da requisição} req 
+ * @param {Dados para resposta} res
+ * @author Iago Nuvem 
+ */
+module.exports.login = function(application, req, res){
+    var connection = new application.config.dbConnection();
+    var UserDAO = new application.app.models.UserDAO(connection);
+    var user = {
+        'nickname' : req.body.login.toString().toLowerCase(),
+        'password' : application.app.customs.encrypt.md5(req.body.password)
+    }
+
+    UserDAO.login(user,res);
+}
+
+/**
+ * Método responsavel por buscar usuário pelo apelido
+ * @param {Instancia do Express} application 
+ * @param {Dados da requisição} req 
+ * @param {Dados para resposta} res
+ * @author Iago Nuvem 
+ */
+module.exports.getByName = function(application, req, res){
+    var connection = new application.config.dbConnection();
+    var UserDAO = new application.app.models.UserDAO(connection);
+    var user = {
+        'nickname' : req.body.nickname.toString().toLowerCase()
+    }
+
+    UserDAO.getByName(user,res);
+}
+
+/**
  * Módulo responsável por buscar todos os usuários
  * @param {Instancia do Express} application 
  * @param {Dados da requisição} req 
@@ -44,6 +79,7 @@ module.exports.insert = function(application,req,res){
  * @author Iago Nuvem 
  */
 module.exports.update = function(application,req,res){
+    // console.log(req.body);
     var _id = req.body._id;
     if(!_id){
         res.send({'success' : false, 'msg' : 'Não é possível atualizar sem a referência!'});
@@ -85,7 +121,8 @@ module.exports.update = function(application,req,res){
     }else{
         delete data.password;
     }
-    
+        
+    // console.log(data);
     UserDAO.update(_id,data,res);
 }
 

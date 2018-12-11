@@ -5,6 +5,10 @@ module.exports = function(application){
         application.app.controllers.notinha.getNotinhas(application,req,res);
     });
 
+    application.post(mod+'getById', function(req, res){
+        application.app.controllers.notinha.getNotinhaById(application,req,res);
+    });
+
     application.post(mod+'getByOwner', function(req, res){
         application.app.controllers.notinha.getNotinhasByOwner(application,req,res);
     });
@@ -28,4 +32,12 @@ module.exports = function(application){
     application.post(mod+'insert', function(req, res){
         application.app.controllers.notinha.insertNotinha(application,req,res);
     });
+
+    application.post(mod+'update',function(req,res){
+        application.app.controllers.notinha.update(application,req,res);
+    })
+
+    application.post(mod+'delete',function(req,res){
+        application.app.controllers.notinha.delete(application,req,res);
+    })
 }

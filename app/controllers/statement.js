@@ -32,12 +32,27 @@ module.exports.getBalanceById = function(application,req,res){
 }
 
 /**
+* Retorna o extrato descontando os Pagamentos feitos de DETERMINADO USUARIO EM DETERMINADA FATURA
+* @author Iago Nuvem 
+*/
+module.exports.getBalanceByUserStatement = function(application,req,res){
+    var connection = new application.config.dbConnection();
+    var StatementDAO = new application.app.models.StatementDAO(connection);
+    // console.log(req.body);
+    var _id = ObjectID(req.body._id); 
+    var user = req.body.user.toString().toLowerCase();
+    StatementDAO.getBalanceByUserStatement(user,_id,res);
+}
+
+
+/**
 * Retorna o extrato descontando os Pagamentos feitos de DETERMINADO USUARIO
 * @author Iago Nuvem 
 */
 module.exports.getBalanceByUser = function(application,req,res){
     var connection = new application.config.dbConnection();
     var StatementDAO = new application.app.models.StatementDAO(connection);
+    // console.log(req.body);
     var user = req.body.user.toString().toLowerCase();
     StatementDAO.getBalanceByUser(user,res);
 }

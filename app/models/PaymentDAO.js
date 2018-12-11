@@ -63,11 +63,11 @@ PaymentDAO.prototype.getAllByStatement = function(statement_id, res){
  * @param {JSON com os dados} data
  * @author Iago Nuvem
  */
-PaymentDAO.prototype.insert = function(data){
+PaymentDAO.prototype.insert = function(data,res){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('payments');
 
-        collection.insert(data, function(err,res){
+        collection.insertOne(data, function(err,obj){
             if(err){
                 res.status(500);
                 res.send({'success': false, 'msg' : 'Falha ao anotar pagamento!'})
@@ -111,17 +111,26 @@ PaymentDAO.prototype.checkPayment = function(payment_id,res){
             
             collection.findOne({ _id : ObjectID(data.statement_id)}, function(err,result){
                 // console.log(result);
+                let aux = 0;
                 for(var i in result.statement){
-                    if(result.statement[i].name == data.payer_name){
+                    let aux_b = 0;
+                    aux_b = result.statement[i].balance;
+                    if(result.statement[i].name == data.payer_name && data.payed != false){
                         result.statement[i].balance += data.amount;
                     }
-                    if(result.statement[i].name == data.receiver_name){
+                    if(result.statement[i].name == data.receiver_name && data.payed != false){
                         result.statement[i].balance -= data.amount;
+                        aux += data.amount
                     }
-                    // console.log(result.statement[i].balance);
+                    console.log(aux);
+                    console.log(result.statement[i].balance);
+                    console.log('-----------');
                     if(result.statement[i].balance == 0){
                         setPayed(data.statement_id,result.statement[i].name);
                     }
+                    // if((aux + result.statement[i].balance) - aux_b == 0){
+                    //     setPayed(data.statement_id,result.statement[i].name);
+                    // }
                 }
             });
     

@@ -27,6 +27,24 @@ NotinhasDAO.prototype.getNotinhas = function(res){
 };
 
 /**
+* Retorna uma notinha pelo _id
+* @param {id da notinha} _id
+* @author Iago Nuvem
+*/
+NotinhasDAO.prototype.getNotinhaById = function(_id, res){
+    var mongoConnected = this._connection.connectToMongo(function(client, db){
+        const collection = db.collection('notinhas');
+
+        collection.findOne({'_id': _id},function(err, result){
+            // console.log(result);
+            res.send(result);  
+        });
+
+        client.close();
+    });
+}
+
+/**
  * Retorna as notinhas Criadas pelo usuario @owner 
  * @param {nome do usuario} owner
  */
@@ -34,7 +52,7 @@ NotinhasDAO.prototype.getNotinhasByOwner = function(owner, res){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('notinhas');
 
-        collection.find({'created_by': owner.toLowerCase()}).toArray(function(err, result){
+        collection.find({'created_by': owner.toLowerCase(), 'active': 1}).toArray(function(err, result){
             // console.log(result);
             res.send(result);  
         });
@@ -51,7 +69,7 @@ NotinhasDAO.prototype.getNotinhasByParticipant = function(participant,res){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('notinhas');
         
-        collection.find({'participants.nome': participant.toLowerCase()}).toArray(function(err, result){
+        collection.find({'participants.nickname': participant.toLowerCase() , 'active' : 1}).toArray(function(err, result){
             // console.log(result);
             res.send(result);  
         });
@@ -69,7 +87,7 @@ NotinhasDAO.prototype.getNotinhasPayedByName = function(owner,res){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('notinhas');
 
-        collection.find({'payed_by.nome': owner.toLowerCase()}).toArray(function(err, result){
+        collection.find({'payed_by.nickname': owner.toLowerCase(), 'active': 1}).toArray(function(err, result){
             // console.log(result);
             res.send(result);  
         });
@@ -89,7 +107,7 @@ NotinhasDAO.prototype.getBalanceByName = function(user,res){
     var mongoConnected = conn.connectToMongo(function(client, db){
         const collection = db.collection('notinhas');
         
-        collection.find({'payed_by.nome': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
+        collection.find({'payed_by.nickname': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
             // console.log('resultado da primeira: '+result);
             getBalance(conn, result, user, res);
         });
@@ -101,14 +119,14 @@ NotinhasDAO.prototype.getBalanceByName = function(user,res){
         var mongoConnected = conn.connectToMongo(function(client, db){
             const collection = db.collection('notinhas');
             
-            collection.find({'participants.nome': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
-                // console.log('resultado da segunda: '+result);
-                var receita = 0, despesa = 0;
+            collection.find({'participants.nickname': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
+                // console.log(result);
+                var receita = 0.0, despesa = 0.0;
                 // For para calcular as receitas
                 for(var i in income_data){
                    for(var j in income_data[i].payed_by){
-                       if(income_data[i].payed_by[j].nome == user.toLowerCase()){
-                           receita += income_data[i].payed_by[j].amount_payed;
+                       if(income_data[i].payed_by[j].nickname == user.toLowerCase()){
+                           receita += parseFloat(income_data[i].payed_by[j].amount_payed);
                        }
                    }
                 }
@@ -117,8 +135,8 @@ NotinhasDAO.prototype.getBalanceByName = function(user,res){
                 // For para calcular as despesas
                 for(var i in result){
                     for(var j in result[i].participants){
-                        if(result[i].participants[j].nome == user.toLowerCase()){
-                            despesa += result[i].participants[j].amount_to_pay;
+                        if(result[i].participants[j].nickname == user.toLowerCase()){
+                            despesa += parseFloat(result[i].participants[j].amount_to_pay);
                         }
                     }
                 }
@@ -127,7 +145,7 @@ NotinhasDAO.prototype.getBalanceByName = function(user,res){
                 var data = {
                     'income': receita,
                     'expanse': despesa,
-                    'balance': receita-despesa
+                    'balance': receita - despesa
                 }
                 
                 res.send(data);
@@ -161,7 +179,7 @@ NotinhasDAO.prototype.getBalanceMulti = function(users,res){
             
             for(var i in users){
                 let user = users[i];
-                collection.find({'payed_by.nome': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
+                collection.find({'payed_by.nickname': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
                     getBalance(conn, result, user, res).then(function(data){
                         fillData(data);
                     });
@@ -190,14 +208,14 @@ NotinhasDAO.prototype.getBalanceMulti = function(users,res){
             var mongoConnected = conn.connectToMongo(function(client, db){
                 const collection = db.collection('notinhas');
                 
-                collection.find({'participants.nome': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
+                collection.find({'participants.nickname': user.toLowerCase(), 'active': 1}).toArray(function(err, result){
                     // console.log('resultado da segunda: '+result);
-                    var receita = 0, despesa = 0;
+                    var receita = 0.0, despesa = 0.0;
                     // For para calcular as receitas
                     for(var i in income_data){
                        for(var j in income_data[i].payed_by){
-                           if(income_data[i].payed_by[j].nome == user.toLowerCase()){
-                               receita += income_data[i].payed_by[j].amount_payed;
+                           if(income_data[i].payed_by[j].nickname == user.toLowerCase()){
+                               receita += parseFloat(income_data[i].payed_by[j].amount_payed);
                            }
                        }
                     }
@@ -206,8 +224,8 @@ NotinhasDAO.prototype.getBalanceMulti = function(users,res){
                     // For para calcular as despesas
                     for(var i in result){
                         for(var j in result[i].participants){
-                            if(result[i].participants[j].nome == user.toLowerCase()){
-                                despesa += result[i].participants[j].amount_to_pay;
+                            if(result[i].participants[j].nickname == user.toLowerCase()){
+                                despesa += parseFloat(result[i].participants[j].amount_to_pay);
                             }
                         }
                     }
@@ -235,7 +253,7 @@ NotinhasDAO.prototype.getBalanceMulti = function(users,res){
  * Insere uma notinha no banco
  * @param {dados da notinha} data
  */
-NotinhasDAO.prototype.insertNotinha = function(data){
+NotinhasDAO.prototype.insertNotinha = function(data,res){
     var mongoConnected = this._connection.connectToMongo(function(client, db){
         const collection = db.collection('notinhas');
 
@@ -251,6 +269,61 @@ NotinhasDAO.prototype.insertNotinha = function(data){
         client.close();
     });
 };
+
+/**
+ * Altera uma notinha
+ * @param {dados do usuario} data
+ * @author Iago Nuvem
+ */
+NotinhasDAO.prototype.update = function(_id,data, res){
+    var mongoConnected = this._connection.connectToMongo(function(client, db){
+        const collection = db.collection('notinhas');
+        // console.log(data);
+        collection.updateOne({_id : _id},{$set: data}, function(err,obj){
+            if(err){
+                res.send({'success': false, 'msg' : 'Falha ao alterar notinha!'});
+                throw err;
+            }
+
+            if(obj.result.nModified > 0){
+                res.send({'success': true, 'msg' : 'Notinha alterada com sucesso!'});
+            }
+            else{
+                res.send({'success': false, 'msg' : 'Nenhum dado foi modificado!'});
+            }
+        });
+
+        client.close();
+    });
+}
+
+/**
+ * Deleta uma notinha do banco
+ * @author Iago Nuvem
+ * @returns {JSON com status e mensagem}
+ */
+NotinhasDAO.prototype.delete = function(_id, res){
+    var mongoConnected = this._connection.connectToMongo(function(client, db){
+        const collection = db.collection('notinhas');
+
+        collection.remove({_id : _id},function(err, obj){
+            if(err){
+                res.send({'success': false, 'msg' : 'Falha ao deletar notinha!'});
+                throw err;
+            }
+
+            // console.log(obj.result);
+            if(obj.result.n != 0){
+                res.send({'success': true, 'msg' : 'Notinha deletada!'});
+            }
+            else{
+                res.send({'success': false, 'msg' : 'Notinha não cadastrada, impossível deletar!'});
+            }
+        });
+
+        client.close();
+    });
+}
 
 module.exports = function(){
     return NotinhasDAO;

@@ -3,6 +3,84 @@ function UserDAO(conn){
 }
 
 /**
+* @author Iago Nuvem
+* @returns {Dados do usuario}
+*/
+UserDAO.prototype.getByName = function(user,res){
+    var mongoConnected = this._connection.connectToMongo(function(client, db){
+        const collection = db.collection('users');
+
+        collection.findOne({'nickname' : user.nickname}, function(err, result){
+            // console.log(result);
+            res.send(result);  
+        });
+
+        client.close();
+    });
+}
+
+/**
+ * realiza o login
+ * @author Iago Nuvem
+ * @returns {Status, msg}
+ */
+UserDAO.prototype.login = function(user,res){
+    let conn = this._connection;
+    new Promise(function(resolve,reject){
+        var mongoConnected = conn.connectToMongo(function(client, db){
+            const collection = db.collection('users');
+
+            
+                collection.findOne({'nickname' : user.nickname}, function(err, result){
+                    if(err){
+                        reject(err);
+                    }
+
+                    if(!result){
+                        resolve({
+                            "ok" : 0,
+                            "msg": "Usuário Inexistente!"
+                        });
+                    }
+                    else{
+                        resolve({
+                            "ok" : 1,
+                            "data": result
+                        });
+                    }
+                });
+
+                client.close();
+            
+        });
+    })
+    .then(function(result){
+        if(result.ok == 0){
+            res.send(result);
+        }
+        else{
+            if(result.data.password == user.password){
+                res.send({
+                    "ok" : 1,
+                    "msg": "Usuário Logado!",
+                    "data": result.data
+                });
+            }
+            else{
+                res.send({
+                    "ok" : 0,
+                    "msg": "Senha Incorreta!",
+                });
+            }
+        }
+    })
+    .catch(function(err){
+        throw err;
+    })
+}
+
+
+/**
  * Busca todos os usuários
  * @author Iago Nuvem
  * @returns {Dados dos usuarios}

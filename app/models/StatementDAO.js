@@ -12,7 +12,7 @@ StatementDAO.prototype.getAllStatements = function(res){
 
         collection.find().sort({ "date_close" : -1 }).toArray(function(err, result){
             // console.log(result);
-            res.send(result);  
+            res.status(200).send(result);
         });
 
         client.close();
@@ -29,9 +29,14 @@ StatementDAO.prototype.getCurrentStatement = function(res){
 
         var date = new Date().toISOString();
 
-        collection.find({'date_open' : {$lte : date}, 'date_close': {$gte: date}}).toArray(function(err, result){
-            // console.log(result);
-            res.send(result);  
+        collection.findOne({'date_open' : {$lte : date}, 'date_close': {$gte: date}} , function(err, result){
+            if(result == null){
+                res.send({'status': false, 'msg': 'Não há faturas'});
+            }
+            else{
+                res.send(result);  
+            }
+            
         });
 
         client.close();
@@ -150,14 +155,14 @@ StatementDAO.prototype.getBalanceById = function(_id, res){
  * @param {Nome do usuario} user
  * @author Iago Nuvem
  */
-StatementDAO.prototype.getBalanceByUser = function(user,res){
+StatementDAO.prototype.getBalanceByUserStatement = function(user,statementId, res){
     let conn = this._connection;
     
     new Promise(function(resolve,reject){
         var mongoConnected = conn.connectToMongo(function(client, db){
             const collection = db.collection('statements');
     
-            collection.find({statement : { $elemMatch: {name: user, payed: false}}}).toArray(function(err, result){
+            collection.find({'statement' : { $elemMatch: {'name': user, 'payed': false }}}).toArray(function(err, result){
                 if(err){
                     res.send({'success' : 0, 'msg': 'Falha ao buscar fatura!'});
                     reject(err);
@@ -170,7 +175,9 @@ StatementDAO.prototype.getBalanceByUser = function(user,res){
                     'balance': 0
                 };
 
+                // console.log(result);
                 for(var i in result){
+                    // console.log(result[i]);
                     for(var j in result[i].statement){
                         if(result[i].statement[j].name == user){
                             data.income += result[i].statement[j].income;
@@ -187,34 +194,127 @@ StatementDAO.prototype.getBalanceByUser = function(user,res){
     })
     .then(function(data){
         // console.log(data);
-        var mongoConnected = conn.connectToMongo(function(client, db){
-            const collection = db.collection('payments');
+        if(data.balance != 0){
+            var mongoConnected = conn.connectToMongo(function(client, db){
+                const collection = db.collection('payments');
+        
+                collection.find({$and : [{$or: [ {payer_name: user}, {receiver_name: user} ]}, {statement_id : statementId}]}).toArray(function(err, result){
+                    if(err){
+                        res.send({'success' : 0, 'msg': 'Falha ao buscar pagamentos da fatura!'});
+                        reject(err);
+                    }
+                    
+                    for(var i in result){
+                        // console.log(result[i].amount);
+                        if(result[i].payer_name == data.name){
+                            // console.log('payer');
+                            data.expanse -= result[i].amount;
+                            data.balance += result[i].amount;
+                        }
+                        if(result[i].receiver_name == data.name){
+                            // console.log('receiver');
+                            data.income -= result[i].amount;
+                            data.balance -= result[i].amount;
+                        }
+                    }
+
+                    // console.log(data);
+                    res.send(data);
+                });
+        
+                client.close();
+            }); 
+        }
+        else{
+            // console.log('vazio');
+            res.send({});
+        }
+        
+    })
+    .catch(function(err){
+        res.send({'success': false, 'msg' : 'Houve uma falha no servidor!'});
+        console.log(err);
+    });
+}
+
+/**
+ * Retorna o balanço descontando os pagamentos feitos de determinado usuario
+ * @param {Nome do usuario} user
+ * @author Iago Nuvem
+ */
+StatementDAO.prototype.getBalanceByUser = function(user,res){
+    let conn = this._connection;
     
-            collection.find({$and : [{$or: [ {payer_name: user}, {receiver_name: user} ]}, {checked : false}]}).toArray(function(err, result){
+    new Promise(function(resolve,reject){
+        var mongoConnected = conn.connectToMongo(function(client, db){
+            const collection = db.collection('statements');
+    
+            collection.find({'statement' : { $elemMatch: {'name': user, 'payed': false }}}).toArray(function(err, result){
                 if(err){
-                    res.send({'success' : 0, 'msg': 'Falha ao buscar pagamentos da fatura!'});
+                    res.send({'success' : 0, 'msg': 'Falha ao buscar fatura!'});
                     reject(err);
                 }
                 
-                for(var i in result){
-                    // console.log(result[i].amount);
-                    if(result[i].payer_name == data.name){
-                        // console.log('payer');
-                        data.expanse -= result[i].amount;
-                        data.balance += result[i].amount;
-                    }
-                    if(result[i].receiver_name == data.name){
-                        // console.log('receiver');
-                        data.income -= result[i].amount;
-                        data.balance -= result[i].amount;
-                    }
-                }
+                let data = {
+                    'name' : user,
+                    'income' : 0,
+                    'expanse' : 0,
+                    'balance': 0
+                };
 
-                res.send(data);
+                // console.log(result);
+                for(var i in result){
+                    // console.log(result[i]);
+                    for(var j in result[i].statement){
+                        if(result[i].statement[j].name == user){
+                            data.income += result[i].statement[j].income;
+                            data.expanse += result[i].statement[j].expanse;
+                            data.balance += result[i].statement[j].balance;
+                        }
+                    }  
+                }
+                resolve(data);  
             });
     
             client.close();
         });
+    })
+    .then(function(data){
+        // console.log(data);
+        if(data.balance != 0){
+            var mongoConnected = conn.connectToMongo(function(client, db){
+                const collection = db.collection('payments');
+        
+                collection.find({$and : [{$or: [ {payer_name: user}, {receiver_name: user} ]}, {checked : false}]}).toArray(function(err, result){
+                    if(err){
+                        res.send({'success' : 0, 'msg': 'Falha ao buscar pagamentos da fatura!'});
+                        reject(err);
+                    }
+                    
+                    for(var i in result){
+                        // console.log(result[i].amount);
+                        if(result[i].payer_name == data.name){
+                            // console.log('payer');
+                            data.expanse -= result[i].amount;
+                            data.balance += result[i].amount;
+                        }
+                        if(result[i].receiver_name == data.name){
+                            // console.log('receiver');
+                            data.income -= result[i].amount;
+                            data.balance -= result[i].amount;
+                        }
+                    }
+
+                    res.send(data);
+                });
+        
+                client.close();
+            }); 
+        }
+        else{
+            res.send({})
+        }
+        
     })
     .catch(function(err){
         res.send({'success': false, 'msg' : 'Houve uma falha no servidor!'});
@@ -224,7 +324,7 @@ StatementDAO.prototype.getBalanceByUser = function(user,res){
 
 /**
  * Abre uma nova notinha
- * @param {date_close} 'data de fechamento'
+ * @param {date_close} 'data limite de pagamento'
  * @author Iago Nuvem
  */
 StatementDAO.prototype.insertStatement = function(res,req){
@@ -258,16 +358,25 @@ StatementDAO.prototype.insertStatement = function(res,req){
         var request = require('request');
         // console.log(req.protocol+'://'+req.get('host')+'/getBalanceMulti');
         request.post({
-            headers: {'content-type' : 'application/x-www-form-urlencoded'},
+            headers: {'content-type' : 'application/json'},
             url: req.protocol+'://'+req.get('host')+'/notinhas/getBalanceMulti',
-            form: { users : JSON.stringify(data)},
+            json: { users : data}
             // json: true
         }, function(error,response,body){
             if (!error && response.statusCode == 200) {
+                for(var i in body){
+                    if(body[i].balance == 0){
+                        body[i].payed = true;
+                    }
+                    else{
+                        body[i].payed = false;
+                    }
+                    
+                }
                 var data = {
                     'date_open' : new Date().toISOString(),
-                    'date_close': req.body.date_close,
-                    'statement' : JSON.parse(body)
+                    'date_close': new Date(req.body.date_close).toISOString(),
+                    'statement' : body
                 }
                 // console.log(data);
 

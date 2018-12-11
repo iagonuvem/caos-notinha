@@ -13,6 +13,10 @@ module.exports = function(application){
         application.app.controllers.statement.getBalanceById(application,req,res);
     })
 
+    application.post(mod+'getBalanceByUserStatement', function(req,res){
+        application.app.controllers.statement.getBalanceByUserStatement(application,req,res);
+    })
+
     application.post(mod+'getBalanceByUser', function(req,res){
         application.app.controllers.statement.getBalanceByUser(application,req,res);
     })
