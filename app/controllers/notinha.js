@@ -123,6 +123,7 @@ module.exports.insertNotinha = function(application,req,res){
     for(var i in participants){
         participants[i].amount_to_pay = amount_to_pay;
     }
+    // console.log(req.body);
     var data = {
             "description" : req.body.description,
             "total_value" : parseFloat(req.body.total_value),
@@ -130,6 +131,7 @@ module.exports.insertNotinha = function(application,req,res){
             "payed_by": req.body.payed_by,
             "participants": participants,
             "date": new Date().toJSON(),
+            "img" : req.body.img,
             "active": 1,
             "checked" : false
     }

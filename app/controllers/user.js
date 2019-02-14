@@ -64,7 +64,7 @@ module.exports.insert = function(application,req,res){
         'nickname': req.body.nickname.toString().toLowerCase(),
         'phone': req.body.phone,
         'password' : application.app.customs.encrypt.md5(req.body.password),
-        'img' : '',
+        'img' : 'user.png',
         'admin': 0
     };
     // console.log(data);
@@ -95,7 +95,8 @@ module.exports.update = function(application,req,res){
         'name' : '',
         'nickname': '',
         'phone': '',
-        'password' : ''
+        'password' : '',
+        'img': ''
     };
 
     if(req.body.name != null && req.body.name != ''){
@@ -120,6 +121,12 @@ module.exports.update = function(application,req,res){
         data.password = application.app.customs.encrypt.md5(req.body.password);
     }else{
         delete data.password;
+    }
+
+    if(req.body.img != null && req.body.img != ''){
+        data.img = req.body.img;
+    }else{
+        delete data.img;
     }
         
     // console.log(data);

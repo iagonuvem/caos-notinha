@@ -325,6 +325,7 @@ NotinhasDAO.prototype.delete = function(_id, res){
     });
 }
 
+
 module.exports = function(){
     return NotinhasDAO;
 }

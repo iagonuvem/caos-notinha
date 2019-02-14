@@ -1,2 +1,3 @@
 config/dbConnection.js
 node_modules/*
+uploads/

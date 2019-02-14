@@ -132,20 +132,53 @@ UserDAO.prototype.delete = function(_id, res){
  * @author Iago Nuvem
  */
 UserDAO.prototype.insert = function(data, res){
-    var mongoConnected = this._connection.connectToMongo(function(client, db){
-        const collection = db.collection('users');
+    let conn = this._connection;
+    new Promise(function(resolve,reject){
+        
 
-        collection.insertOne(data, function(err,obj){
-            if(err){
-                res.send({'success': false, 'msg' : 'Falha ao inserir usuário!'});
-                throw err;
-            }
+        var mongoConnected = conn.connectToMongo(function(client, db){
+            const collection = db.collection('users');
 
-            res.send({'success': true, 'msg' : 'Usuário Cadastrado com sucesso!'});
+            collection.findOne({'nickname' : data.nickname}, function(err, result){
+                if(err){
+                    reject(err);
+                }
+
+                if(!result){ // Se não houver usuário com o mesmo nickname, procede com o cadastro
+                    resolve(1);
+                }
+                else{
+                    resolve(0);
+                }
+            });
+
+            client.close();
         });
+    })
+    .then(function(ok){
+        // console.log(data);
+        if(ok == 1){
+           var mongoConnected = conn.connectToMongo(function(client, db){
+                const collection = db.collection('users');
 
-        client.close();
-    });
+                collection.insertOne(data, function(err,obj){
+                    if(err){
+                        res.send({'success': false, 'msg' : 'Falha ao inserir usuário!'});
+                        throw err;
+                    }
+
+                    res.send({'success': true, 'msg' : 'Usuário Cadastrado com sucesso!'});
+                });
+            }) 
+        }
+        else{
+           res.send({'success': false, 'msg' : 'Apelido já existente!'}); 
+        }
+        
+    })
+    .catch(function(err){
+        throw err;
+    })
 }
 
 /**
