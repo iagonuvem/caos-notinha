@@ -1,6 +1,6 @@
 var MongoModule = require('mongodb').MongoClient;
  
-const url = 'mongodb://tatooine.mongodb.umbler.com:27017';
+const url = 'mongodb://tatooine.mongodb.umbler.com:48254';
 const dbName = 'notinha';
  
 function dbConnection(){
