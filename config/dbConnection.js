@@ -9,14 +9,27 @@ function dbConnection(){
 }
  
 dbConnection.prototype.connectToMongo = function(callback){
- 
-  MongoModule.connect(url, { useNewUrlParser: true }, function(err, client) {
-  //console.log("Server Conectado Com Sucesso!");
-  var MongoClient = client;
-  var MongoDB = client.db(dbName);
+  	// Create a new MongoClient
+	const client = new MongoClient(url);
+
+	// Use connect method to connect to the Server
+	client.connect(function(err) {
+	  assert.equal(null, err);
+	  console.log("Connected successfully to server");
+
+	  const db = client.db(dbName);
+
+	  return callback(client,db);
+	});
+
+  // MongoModule.connect(url, { useNewUrlParser: true }, function(err, client) {
+  // console.log("Server Conectado Com Sucesso!");
+  // console.log(client);
+  // var MongoClient = client;
+  // var MongoDB = client.db(dbName);
   
-  return callback(MongoClient, MongoDB);
-  });
+  // return callback(MongoClient, MongoDB);
+  // });
  
 }
  
