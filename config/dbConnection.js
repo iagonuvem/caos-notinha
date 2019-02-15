@@ -10,7 +10,7 @@ function dbConnection(){
  
 dbConnection.prototype.connectToMongo = function(callback){
   	// Create a new MongoClient
-	const client = new MongoClient(url);
+	const client = new MongoModule(url);
 
 	// Use connect method to connect to the Server
 	client.connect(function(err) {
