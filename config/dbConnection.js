@@ -1,6 +1,6 @@
 var MongoModule = require('mongodb').MongoClient;
  
-const url = 'mongodb://tatooine.mongodb.umbler.com:48254';
+const url = 'mongodb://caos:EWpGOyVKPLRN0uC1@tatooine.mongodb.umbler.com:48254?authMechanism=SCRAM-SHA-1&authSource=notinha';
 const dbName = 'notinha';
  
 function dbConnection(){
@@ -9,27 +9,14 @@ function dbConnection(){
 }
  
 dbConnection.prototype.connectToMongo = function(callback){
-  	// Create a new MongoClient
-	const client = new MongoModule(url);
-
-	// Use connect method to connect to the Server
-	client.connect(function(err) {
-	  assert.equal(null, err);
-	  console.log("Connected successfully to server");
-
-	  const db = client.db(dbName);
-
-	  return callback(client,db);
-	});
-
-  // MongoModule.connect(url, { useNewUrlParser: true }, function(err, client) {
+  MongoModule.connect(url, { useNewUrlParser: true }, function(err, client) {
   // console.log("Server Conectado Com Sucesso!");
-  // console.log(client);
-  // var MongoClient = client;
-  // var MongoDB = client.db(dbName);
+  console.log(client);
+  var MongoClient = client;
+  var MongoDB = client.db(dbName);
   
-  // return callback(MongoClient, MongoDB);
-  // });
+  return callback(MongoClient, MongoDB);
+  });
  
 }
  
